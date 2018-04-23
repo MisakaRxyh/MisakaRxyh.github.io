@@ -36,3 +36,4 @@ class Drawimg:
         plt.savefig(filepath)
         # plt.show()
         return filepath
+

@@ -7,8 +7,7 @@ from exts import db
 from . import main
 from app.decorators import login_required
 import datetime
-
-import spider
+from spider.crawler import start
 
 # 主要路由映射
 
@@ -67,11 +66,12 @@ def userlist():
 
 @main.route('/spider', methods = ['GET','POST'])
 def spider():
+    user = g.user
     if request.method == 'GET':
-        user = g.user
         return render_template('spider.html',user = user)
     else:
-        return
+        info = start()
+        return render_template("spider.html",user = user, info = info)
 
 
 

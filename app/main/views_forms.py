@@ -14,7 +14,7 @@ from app.formcheck import LoginCheck, RegisterCheck
 import datetime
 
 # test 导包
-import json
+from app.analysis import getPosintionNum_by_time
 
 # 表单中的路由映射
 #
@@ -28,11 +28,13 @@ def simple_query():
                                                                                                                    per_page=20,
                                                                                                                    error_out=False)
     result = pagination.items #分页功能
+    print(result)
     return render_template('simple.html', search=search, result=result, user=user, pagination=pagination)
 
 #测试
 @main.route('/test')
 def test():
+    getPosintionNum_by_time()
     return render_template('test.html')
 
 
