@@ -101,3 +101,110 @@ class Parse:
         ep = Parse.EducationParse(result)
         result = Parse.resultParse(name, pc, cp, sp, ep)
         return result
+
+    def getCityData(positions):
+        city_context = {}
+        for position in positions:
+            if position.city not in city_context.keys():
+                city_context[position.city] = 1
+            else:
+                city_context[position.city] += 1
+        city = []
+        citynum = []
+        for k,v in city_context.items():
+            city.append(k)
+            citynum.append(v)
+        return city,citynum
+
+    def getEducationData(positions):
+        education_context = {}
+        for position in positions:
+            if position.education not in education_context.keys():
+                education_context[position.education] = 1
+            else:
+                education_context[position.education] += 1
+        print(education_context)
+        education = []
+        educationnum  = []
+        for k,v in education_context.items():
+            education.append(k)
+            educationnum.append(v)
+        return education,educationnum
+
+    def getSalaryData(positions):
+        salary_context = {
+
+        }
+        for position in positions:
+            low = int(position.salary.lower().split('k', 1)[0])
+            str = position.salary.lower().split('k')[1].split('-')
+            if len(str) == 2:
+                high = int(position.salary.lower().split('k')[1].split('-')[1])
+            elif len(str) == 1:
+                high = low
+            avg = (low + high) / 2
+            if avg >= 1 and avg < 5:
+                if '1k-5k' not in salary_context.keys():
+                    salary_context['1k-5k'] = 1
+                else:
+                    salary_context['1k-5k'] += 1
+            elif avg >= 5 and avg < 10:
+                if '5k-10k' not in salary_context.keys():
+                    salary_context['5k-10k'] = 1
+                else:
+                    salary_context['5k-10k'] += 1
+            elif avg >= 10 and avg < 15:
+                if '10k-15k' not in salary_context.keys():
+                    salary_context['10k-15k'] = 1
+                else:
+                    salary_context['10k-15k'] += 1
+            elif avg >= 15 and avg < 20:
+                if '15k-20k' not in salary_context.keys():
+                    salary_context['15k-20k'] = 1
+                else:
+                    salary_context['15k-20k'] += 1
+            elif avg >= 20:
+                if '20k以上' not in salary_context.keys():
+                    salary_context['20k以上'] = 1
+                else:
+                    salary_context['20k以上'] += 1
+        print(salary_context)
+        salary = []
+        salarynum  = []
+        for k,v in salary_context.items():
+            salary.append(k)
+            salarynum.append(v)
+        return salary,salarynum
+
+    def listToString(trans,transnum):
+        trans_string = ''
+        transnum_string = ''
+        for t in trans:
+            trans_string += t + ' '
+        for tn in transnum:
+            transnum_string += str(tn) + ' '
+        return trans_string,transnum_string
+
+    def stringToList(trans_string,transnum_string):
+        # trans = []
+        # transnum = []
+        trans = trans_string.strip().split(' ')
+        transnum = transnum_string.strip().split(' ')
+        transnum = list(map(int,transnum)) #将字符数组转为整型数组
+        return trans,transnum
+
+    def format_date(date):
+        year = date.year
+        month = date.month
+        day = date.day
+        if month < 10:
+            month = '0' + str(month)
+        else:
+            month = str(month)
+        if day < 10:
+            day = '0' + str(day)
+        else:
+            day = str(day)
+        year = str(year)
+        return year + '-' + month + '-' + day
+

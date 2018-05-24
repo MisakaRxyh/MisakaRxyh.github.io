@@ -23,6 +23,12 @@ class RegisterCheck():
         else:
             return False
 
+    def is_empty2(self, username, userpwd, agaginpwd):
+        if username.strip() == '' or userpwd.strip() == '' or agaginpwd.strip() == '':
+            return True
+        else:
+            return False
+
 
 class LoginCheck():
     def is_exist(self, useraccount):

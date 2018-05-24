@@ -26,11 +26,24 @@ class Statistics(db.Model):
     educationImgUrl = db.Column(db.String(100),nullable=False)
     queryDate = db.Column(db.Date,nullable=False)
 
+class Stat(db.Model):
+    __tablename__ = 'stat'
+    statID = db.Column(db.Integer,primary_key=True,autoincrement=True)
+    city = db.Column(db.String,nullable=False)
+    cityNum = db.Column(db.String,nullable=False)
+    salary = db.Column(db.String,nullable=False)
+    salaryNum = db.Column(db.String,nullable=False)
+    education = db.Column(db.String,nullable=False)
+    educationNum = db.Column(db.String,nullable=False)
+    queryDate = db.Column(db.Date,nullable=False)
+    skillName = db.Column(db.String(20),nullable=False)
+
 class Collect(db.Model):
     __tablename__ = 'collect'
     collectID = db.Column(db.Integer,primary_key=True,autoincrement=True)
     userID = db.Column(db.Integer,db.ForeignKey('user.userID'),nullable=False)
-    statisticsID = db.Column(db.Integer,db.ForeignKey('statistics.statisticsID'),nullable=False)
+    #statisticsID = db.Column(db.Integer,db.ForeignKey('statistics.statisticsID'),nullable=False)
+    statisticsID = db.Column(db.Integer,db.ForeignKey('stat.statID'),nullable=False)
     collectDate = db.Column(db.Date,nullable=False)
     queryName = db.Column(db.String(20),nullable=False)
 

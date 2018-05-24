@@ -1,17 +1,122 @@
 {% extends 'base.html' %}
 
 {% block head %}
-    <title>500</title>
+<title>spider</title>
 {% endblock %}
 
 {% block main %}
-<form method="post" action="/spider" >
-    爬起范围：<input type="text" name="begin"> - <input type="text" name="end">
-<button type="submit" class="btn btn-primary">爬取数据</button><br>
-<textarea>
-{{info}}
-</textarea>
+<div class="form-group">
+    <form method="post" action="/spider">
+        爬起范围：<input type="text" name="startskill" id="startskill"> - <input type="text" name="endskill" id="endskill">
+        爬取页面数：<input type="text" name="pagerange" id="pagerange">
+        <input type="button" id="sub" class="btn btn-default" value="爬取数据">
+        <br>
+        <!--<p>-->
+        <!--{% if g.spiderstate == 0 %}-->
+        <!--爬虫未启动-->
+        <!--{% endif %}-->
+        <!--{% if g.spiderstate == 1 %}-->
+        <!--爬虫正在运行中-->
+        <!--{% endif %}-->
+        <!--{% if g.spiderstate == 2 %}-->
+        <!--爬取数据成功-->
+        <!--{% endif %}-->
+        <!--{% if g.spiderstate == 3 %}-->
+        <!--爬取数据失败-->
+        <!--{% endif %}-->
+        <!--</p>-->
+    </form>
+    <div id="spiderstate"></div>
 
-</form>
+</div>
+<script>
+    var spiderstate = 2
 
+    $("#sub").click(function () {
+        var startskill = document.getElementById('startskill').value
+        var endskill = document.getElementById('endskill').value
+        var pagerange = document.getElementById('pagerange').value
+        console.log(startskill)
+        console.log(endskill)
+        console.log(pagerange)
+//        var p = 1
+//        if(startskill <= endskill){
+//            if(p <= pagerange){
+//            p++;
+//            }
+//            else{
+//                startskill += 1;
+//                p=1;
+//            }
+//            post_spider(startskill,p);
+//        }
+//        else{
+//            document.getElementById('sub').value = "结束"
+//        }
+        $.post('/spider', {"startskill": startskill, "endskill": endskill, "pagerange": pagerange}).done(update_spiderstate)
+//
+//        for(var s = startskill; s <= endskill; s++){
+//            console.log(s)
+////            var delaytime = randomNum(5000,10000)
+////            console.log(delaytime)
+////            window.setTimeout(function(){
+////                post_spider(pagerange)
+////            },delaytime)
+//            for(var p = 1; p <= pagerange; p++){
+//                console.log(p)
+//                console.log(spiderstate)
+//                if(spiderstate == 2){
+//                    spiderstate = 1
+//                    $.post('/spider', {"startskill": s, "endskill": s, "startpage": p,"endpage":p+1}).done(update_spiderstate)
+//                }
+//
+//            }
+//        }
+//        if(spiderstate != 3){
+//            document.getElementById('spiderstate').innerHTML = "爬取数据成功"
+//        }
+    })
+
+    function post_spider(s,p){
+        $.post('/spider', {"startskill": s, "endskill": s, "startpage": p,"endpage":p+1}).done(update_spiderstate)
+
+    }
+
+    function randomNum(minNum,maxNum){
+    switch(arguments.length){
+        case 1:
+            return parseInt(Math.random()*minNum+1,10);
+        break;
+        case 2:
+            return parseInt(Math.random()*(maxNum-minNum+1)+minNum,10);
+        break;
+            default:
+                return 0;
+            break;
+    }
+}
+
+    var update_spiderstate = function (data) {
+        alert(data)
+//        if (data.spiderstate == 1) {
+//            document.getElementById('spiderstate').innerHTML = "爬虫运行中,已爬取"+data.skillname+"岗位,第"+data.page+"页"
+//        }
+//        else if (data.spiderstate == 3) {
+//            document.getElementById('spiderstate').innerHTML = "爬取数据失败,在爬取"+data.skillname+"的第"+data.page+"页时出错"
+//        }
+//        spiderstate = data.spiderstate + 1
+//
+//        document.getElementById('sub').value = "下一页"
+    }
+    console.log("000")
+    // 异步加载数据 （首次，get，显示6个数据）
+    $.get('/spiderstate').done(update_spider);
+    console.log("111")
+
+    // 异步更新数据 （以后，定时post，取回1个数据）
+    //    var timeTicket = setInterval(function () {
+    //        $.post('/spiderstate').done(update_spider);
+    //        console.log("222")
+    //    }, 10000);
+</script>
 {% endblock %}

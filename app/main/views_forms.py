@@ -4,6 +4,8 @@ from flask import render_template
 from flask import request
 from flask import session
 from flask import g
+from flask import jsonify
+from flask import json
 from . import main
 from app.mysqldb import MySQL_DB
 from app.parse import Parse
@@ -12,9 +14,10 @@ from app.model import User, Statistics, Position
 from exts import db
 from app.formcheck import LoginCheck, RegisterCheck
 import datetime
-
+import time
+from app.analysis import get_last_month
 # test 导包
-from app.analysis import getPosintionNum_by_time
+from app.analysis import getPosintionNum_by_time,getSkillNum_by_type,getPositionNum_by_tend
 
 # 表单中的路由映射
 #
@@ -27,16 +30,69 @@ def simple_query():
     pagination = Position.query.filter(Position.skillName == search).order_by(Position.createTime.desc()).paginate(page,
                                                                                                                    per_page=20,
                                                                                                                    error_out=False)
+    # pagination = Position.query.filter(Position.skillName.like('%'+search+'%')).order_by(Position.createTime.desc()).paginate(page,
+    #                                                                                                                per_page=20,
+    #                                                                                                                error_out=False)
     result = pagination.items #分页功能
     print(result)
     return render_template('simple.html', search=search, result=result, user=user, pagination=pagination)
 
-#测试
-@main.route('/test')
-def test():
-    getPosintionNum_by_time()
-    return render_template('test.html')
+@main.route('/pro_query',methods = ['POST','GET'])
+def pro_query():
+    if request.method == 'POST':
+        search = request.form.get('search')
+        city = request.form.get('city')
+        salary = request.form.get('salary')
+        education = request.form.get('education')
+        workyear = request.form.get('workyear')
+        date_begin = request.form.get('date_begin')
+        date_end = request.form.get('date_end')
+        user = g.user
+        page = request.args.get('page', 1, type=int) #分页
+        pagination = Position.query.filter(
+                Position.skillName.like('%'+search+'%'),
+                Position.city == city,
+                Position.salary == salary,
+            Position.education == education,
+            Position.workYear == workyear,
+            Position.createTime.between(date_begin,date_end)
+        ).order_by(Position.createTime.desc()).paginate(page,per_page=20,error_out=False)
+        result = pagination.items #分页功能
+        print('职位对象',result)
 
+        position_json = {}
+        i = 1
+        for r in result:
+            position_dict = {}
+            position_dict['positionId'] = r.positionId
+            position_dict['skillName'] = r.skillName
+            position_dict['createTime'] = Parse.format_date(r.createTime)
+            position_dict['education'] = r.education
+            position_dict['city'] = r.city
+            position_dict['positionName'] = r.positionName
+            position_dict['workYear'] = r.workYear
+            position_dict['salary'] = r.salary
+            position_dict['companyShortName'] = r.companyShortName
+            position_json['position'+str(i)] = position_dict
+            i = i + 1
+        print('职位json',position_json)
+        return jsonify(**position_json)
+
+#测试
+@main.route('/test') # 简单查询 将数据库中的爬取的职位信息全部展示出来
+def test():
+    user = g.user
+    page = request.args.get('page', 1, type=int) #分页
+    search = request.args.get('search') #获取查询内容
+    pagination = Position.query.filter(Position.skillName == search).order_by(Position.createTime.desc()).paginate(page,
+                                                                                                                   per_page=20,
+                                                                                                                   error_out=False)
+    # pagination = Position.query.filter(Position.skillName.like('%'+search+'%')).order_by(Position.createTime.desc()).paginate(page,
+    #                                                                                                                per_page=20,
+    #                                                                                                                error_out=False)
+    result = pagination.items #分页功能
+    print(result)
+    return render_template('test.html', search=search, result=result, user=user, pagination=pagination)
 
 @main.route('/count_query') #
 def count_query():
@@ -181,13 +237,13 @@ def user_register():
         rc = RegisterCheck()
         if rc.is_empty(useraccount, username, userpwd, againpwd):
             error = '请确认注册信息填写完整'
-            return render_template('error.html', error=error)
+            return error
         elif not rc.againpwd_check(userpwd, againpwd):
             error = '密码重复错误，请重新输入'
-            return render_template('error.html', error=error)
+            return error
         elif not rc.useraccount_repeat(useraccount):
             error = '此账号已经被注册'
-            return render_template('error.html', error=error)
+            return error
         else:
             user = User(
                     userName=username,
@@ -200,4 +256,76 @@ def user_register():
             userid = User.query.filter(User.userAccount == useraccount).first().userID
             session['userID'] = userid
             return render_template('success.html', user=user)
+
+
+@main.route('/updateuser',methods = ['POST'])
+def updateuser():
+    userid = request.form.get('userid')
+    username = request.form.get('username')
+    #useraccount = request.form.get('useraccount')
+    userpwd = request.form.get('userpwd')
+    againpwd = request.form.get('againpwd')
+    print(userid)
+    rc = RegisterCheck()
+    if rc.is_empty2(username, userpwd, againpwd):
+            error = '请确认信息填写完整'
+            return error
+    elif not rc.againpwd_check(userpwd, againpwd):
+        error = '确认密码错误，请重新输入'
+        return error
+    # elif not rc.useraccount_repeat(useraccount):
+    #     error = '此账号已经被注册'
+    #     return error
+    else:
+        user = User.query.filter(User.userID == userid).first()
+        user.userName = username
+        user.userPwd = userpwd
+        db.session.commit()
+        return "修改成功"
+
+@main.route('/deleteuser',methods = ['POST'])
+def deleteuser():
+    userid = request.form.get('userid')
+    user = User.query.filter(User.userID == userid).first()
+    collections = user.collections
+    print(collections)
+    for collection in collections:
+        db.session.delete(collection)
+    db.session.delete(user)
+    db.session.commit()
+    return '删除成功'
+
+@main.route('/updateposition',methods = ['POST'])
+def updateposition():
+    positionid = request.form.get('positionid')
+    positionname = request.form.get('positionname')
+    companyshortname = request.form.get('companyshortname')
+    city = request.form.get('city')
+    salary = request.form.get('salary')
+    education = request.form.get('education')
+    workyear = request.form.get('workyear')
+    createtime = request.form.get('createtime')
+    print(positionid,positionname,companyshortname,city,salary,education,workyear,createtime)
+    if positionname == '' or companyshortname == '' or city == '' or salary == '' or education == '' or workyear == '' or createtime == '':
+            error = '请确认信息填写完整'
+            return error
+    else:
+        position = Position.query.filter(Position.positionId == positionid).first()
+        position.positionName = positionname
+        position.companyShortName = companyshortname
+        position.city = city
+        position.salary = salary
+        position.education = education
+        position.workYear = workyear
+        position.createTime = createtime
+        db.session.commit()
+        return "修改成功"
+
+@main.route('/deleteposition',methods = ['POST'])
+def deleteposition():
+    positionid = request.form.get('positionid')
+    position = Position.query.filter(Position.positionId == positionid).first()
+    db.session.delete(position)
+    db.session.commit()
+    return '删除成功'
 

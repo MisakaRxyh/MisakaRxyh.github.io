@@ -26,6 +26,55 @@ def getPosintionNum_by_time():
     plt.show()
     print(info)
 
+def getSkillNum_by_type():
+    info = {}
+    name = []
+    num = []
+    for skill in Skill.query.order_by(Skill.skillNum.desc()):
+        name.append(skill.skillName)
+        num.append(skill.skillNum)
+    info['skillname'] = name
+    info['skillnum'] = num
+    print(info)
+    df = DataFrame(info)
+    seaborn.set(font_scale=1.5,font='STSong')
+    f, ax=plt.subplots(figsize=(20,20))
+
+    #orient='h'表示是水平展示的，alpha表示颜色的深浅程度
+    seaborn.barplot(y=df.skillname.values, x=df.skillnum.values,orient='h', alpha=0.8, color='red')
+
+    #设置y轴、X轴的坐标名字与字体大小
+    plt.ylabel('skillnum', fontsize=16)
+    plt.xlabel('skillname', fontsize=16)
+
+    #设置X轴的各列下标字体是水平的
+    plt.xticks(rotation='horizontal')
+
+    #设置Y轴下标的字体大小
+    plt.yticks(fontsize=15)
+    plt.show()
+
+def getPositionNum_by_tend(skillName):
+    datelist = get_last_month()
+    info = {}
+    month = []
+    num = []
+    for date in datelist:
+        month.append(date)
+        count = Position.query.filter(Position.skillName == skillName,Position.createTime.like(date+'%')).count()
+        num.append(count)
+    info['month'] = month
+    info['num'] = num
+    print(info)
+    # f, ax=plt.subplots(figsize=(20,20))
+    # seaborn.set(font_scale=1.5,font='STSong')
+    # df = DataFrame(info)
+    # seaborn.barplot(x=df.month.values, y=df.num.values, alpha=0.8, color='red')
+    # plt.ylabel('number', fontsize=16)
+    # plt.xlabel('month', fontsize=16)
+    df = DataFrame(info)
+    seaborn.distplot(df['num'])
+    plt.show()
 
 def get_last_month():
     #获取过去的12个月

@@ -16,7 +16,8 @@ class Drawimg:
         print(number)
         plt.rcParams['font.sans-serif'] = ['SimHei']
         plt.rcParams['axes.unicode_minus'] = False
-        fig = plt.figure(figsize=(10, 10))
+
+        plt.figure(figsize=(10, 10))
         plt.pie(x=number, labels=content, autopct='%1.2f%%')
         title = name + "的" + type + '分布饼图'
         plt.title(title)
