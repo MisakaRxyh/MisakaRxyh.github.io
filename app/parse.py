@@ -1,5 +1,5 @@
-from app.drawimg import Drawimg
 
+from collections import OrderedDict
 
 # 用于统计处理从数据库中获取到的职位信息
 class Parse:
@@ -41,7 +41,7 @@ class Parse:
 
     def SalaryParse(result):
         salarylist = {
-            '2k-5k': 0,
+            '1k-5k': 0,
             '5k-10k': 0,
             '10k-15k': 0,
             '15k-20k': 0,
@@ -102,6 +102,20 @@ class Parse:
         result = Parse.resultParse(name, pc, cp, sp, ep)
         return result
 
+    def getSkillData(positions):
+        skill_context = {}
+        for position in positions:
+            if position.skillName not in skill_context.keys():
+                skill_context[position.skillName] = 1
+            else:
+                skill_context[position.skillName] += 1
+        skill = []
+        skillnum = []
+        for k,v in skill_context.items():
+            skill.append(k)
+            skillnum.append(v)
+        return skill,skillnum
+
     def getCityData(positions):
         city_context = {}
         for position in positions:
@@ -133,7 +147,11 @@ class Parse:
 
     def getSalaryData(positions):
         salary_context = {
-
+            '1k-5k': 0,
+            '5k-10k': 0,
+            '10k-15k': 0,
+            '15k-20k': 0,
+            '20k以上': 0,
         }
         for position in positions:
             low = int(position.salary.lower().split('k', 1)[0])
@@ -168,6 +186,9 @@ class Parse:
                     salary_context['20k以上'] = 1
                 else:
                     salary_context['20k以上'] += 1
+        for k,v in salary_context.items():
+            if v == 0:
+                salary_context.pop(k)
         print(salary_context)
         salary = []
         salarynum  = []

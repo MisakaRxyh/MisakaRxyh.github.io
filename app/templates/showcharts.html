@@ -27,6 +27,7 @@
 {% endblock %}
 
 {% block main %}
+<div class="simple">
 <div class="form-group">
     <form>
         <label>关键字<input class="form-control" type="text" name="search" id="search" value="{{search}}"></label>
@@ -65,119 +66,225 @@
             </select>
         </label>
         <br>
-
-        <label>发布日期
-        <input style="width: 200px;display: inline-block;" class="form-control" type="text" name="date_begin" id="date_begin" value="{{date_begin}}"/>~
-        <input style="width: 200px;display: inline-block;" class="form-control" type="text" name="date_end" id="date_end" value="{{date_end}}"/>
+        <label>图表类型
+            <label class="radio-inline">
+                <input type="radio" name="type" id="pie" value="pie" checked="checked"> 饼图
+            </label>
+            <label class="radio-inline">
+                <input type="radio" name="type" id="bar" value="bar"> 柱状图
+            </label>
+            <label class="radio-inline">
+                <input type="radio" name="type" id="line" value="line"> 折线图
+            </label>
         </label>
         <br>
+        <label>图表信息
+            <select name="chartinfo" id="chartinfo" class="selectpicker">
+                <option value="技能">技能</option>
+                <option value="城市">城市</option>
+                <option value="薪资">薪资</option>
+                <option value="学历">学历</option>
+                <option value="工作经验">工作经验</option>
+
+            </select>
+        </label>
         <input class="btn btn-default" type="button" id="sub" value="查询">
     </form>
 </div>
 <div id="showchart" style="height:800px;border:1px solid #ccc;padding:10px;"></div>
-
+</div>
 <script>
+
+
+    $("input[name='type']").click(function(){
+        var search = document.getElementById("search").value;
+        var city = document.getElementById("city").value;
+        var salary = document.getElementById("salary").value;
+        var education = document.getElementById("education").value;
+        var workyear = document.getElementById("workyear").value;
+        var chart_type = $("input[name='type']:checked").val();
+        var chart_info = document.getElementById("chartinfo").value;
+        console.log(chart_type)
+        showChart.clear()
+        if(chart_type == 'pie'){
+            showChart.setOption(option_pie);
+            $.post('/showcharts',{'search':search,'city':city,'salary':salary,'education':education,
+                'workyear':workyear,'chart_type':chart_type,'chart_info':chart_info}).done(update_showchart)
+        }
+        else{
+            console.log("222")
+            showChart.setOption(option);
+            $.post('/showcharts',{'search':search,'city':city,'salary':salary,'education':education,
+                'workyear':workyear,'chart_type':chart_type,'chart_info':chart_info}).done(update_showchart_bar)
+        }
+    });
+
+
     $("#sub").click(function () {
         var search = document.getElementById("search").value;
         var city = document.getElementById("city").value;
         var salary = document.getElementById("salary").value;
         var education = document.getElementById("education").value;
         var workyear = document.getElementById("workyear").value;
-        var date_begin = document.getElementById("date_begin").value;
-        var date_end = document.getElementById("date_end").value;
+        var chart_type = $("input[name='type']:checked").val();
+        var chart_info = document.getElementById("chartinfo").value;
 
-        console.log(city)
-        console.log(salary)
-        console.log(education)
-        console.log(workyear)
-        console.log(date_begin)
-        console.log(date_end)
+//        console.log(city)
+//        console.log(salary)
+//        console.log(education)
+//        console.log(workyear)
+//        console.log(date_begin)
+//        console.log(date_end)
+//        console.log(chart_type)
+//        console.log(chart_info)
 
-        if (search == "") {
-            alert("查询内容不能为空");
-        }
-        else{
+        if (chart_type =='pie') {
             $.post('/showcharts',{'search':search,'city':city,'salary':salary,'education':education,
-                'workyear':workyear,'date_begin':date_begin,'date_end':date_end})
+                'workyear':workyear,'chart_type':chart_type,'chart_info':chart_info}).done(update_showchart)
+        }
+        else {
+            $.post('/showcharts',{'search':search,'city':city,'salary':salary,'education':education,
+                'workyear':workyear,'chart_type':chart_type,'chart_info':chart_info}).done(update_showchart_bar)
         }
     });
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    function DatePicker(beginSelector,endSelector){
-            // 仅选择日期
-            $(beginSelector).datepicker(
+    var showChart = echarts.init(document.getElementById('showchart'));
+    var myDate = new Date();
+    option_pie = {
+        title: {
+            //text: '岗位总体城市分布饼图',
+            subtext: '数据来源于lagou.com\n'+myDate.toLocaleDateString(),     //获取当前日期
+            x: 'left'
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'right',
+            data: []
+        },
+        series: [
             {
-            	language:  "zh-CN",
-            	autoclose: true,
-            	startView: 0,
-            	format: "yyyy-mm-dd",
-            	clearBtn:true,
-            	todayBtn:false,
-            	endDate:new Date()
-            }).on('changeDate', function(ev){
-            	if(ev.date){
-            		$(endSelector).datepicker('setStartDate', new Date(ev.date.valueOf()))
-            	}else{
-            		$(endSelector).datepicker('setStartDate',null);
-            	}
-            })
+                name: '岗位数',
+                type:'pie',
+                radius: '55%',
+                center: ['50%', '60%'],
+                data: [],
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
 
-            $(endSelector).datepicker(
-            {
-            	language:  "zh-CN",
-            	autoclose: true,
-            	startView:0,
-            	format: "yyyy-mm-dd",
-            	clearBtn:true,
-            	todayBtn:false,
-            	endDate:new Date()
-            }).on('changeDate', function(ev){
-            	if(ev.date){
-            		$(beginSelector).datepicker('setEndDate', new Date(ev.date.valueOf()))
-            	}else{
-            		$(beginSelector).datepicker('setEndDate',new Date());
-            	}
-
-            })
+    option = {
+    title: {
+        subtext: '数据来源于lagou.com\n'+myDate.toLocaleDateString(),
+    },
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'shadow'
         }
+    },
+    legend: {
+        data: []
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis: {
+        type: 'value',
+        boundaryGap: [0, 0.01]
+    },
+    yAxis: {
+    },
+    series: [
+            ]
+};
 
-        DatePicker("#date_begin","#date_end");
+
+    showChart.setOption(option_pie);
+
+    window.addEventListener("resize",function(){
+        showChart.resize();
+    });
+
+    var update_showchart_bar = function(data){
+        showChart.hideLoading();
+        showChart.setOption({
+            yAxis: {
+                type: 'category',
+                data: data.result
+            },
+            title: {
+                text: data.chart_info+'数量图'
+            },
+            series: [{
+                data: data.resultnum,
+                type: data.chart_type,
+            }
+            ]
+        });
+    }
+
+    var update_showchart = function (data) {
+        showChart.hideLoading();
+        showChart.setOption({
+            legend: {
+                data: test(data)
+            },
+            title: {
+                text: data.chart_info+'分布图'
+            },
+            series: [{
+                data: getseries_by_data(data)
+            }
+            ]
+        });
+
+    };
+
+    function test(data){
+        if(data.chart_info == '城市')
+            return data
+    }
+
+    function getseries_by_data(data) {
+        var serie = []
+        for (var i = 0; i < data.resultnum.length; i++) {
+            var item = {
+                name: data.result[i],
+                value: data.resultnum[i],
+                type: data.chart_type,
+            }
+            serie.push(item)
+        }
+        console.log(serie)
+        return serie
+    }
+
+    showChart.showLoading();
+    var search = document.getElementById("search").value;
+    var city = document.getElementById("city").value;
+    var salary = document.getElementById("salary").value;
+    var education = document.getElementById("education").value;
+    var workyear = document.getElementById("workyear").value;
+    var chart_type = $("input[name='type']:checked").val();
+    var chart_info = document.getElementById("chartinfo").value;
+    $.post('/showcharts',{'search':search,'city':city,'salary':salary,'education':education,
+                'workyear':workyear,'chart_type':chart_type,'chart_info':chart_info}).done(update_showchart)
 
 
 </script>

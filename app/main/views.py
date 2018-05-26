@@ -60,15 +60,15 @@ def showcharts():
         salary = request.form.get('salary') #获取查询内容
         education = request.form.get('education')
         workyear = request.form.get('workyear')
-        date_begin = request.form.get('date_begin') #获取查询内容
-        date_end = request.form.get('date_end') #获取查询内容
+        chart_type = request.form.get('chart_type') #获取查询内容
+        chart_info = request.form.get('chart_info') #获取查询内容
         print('skillname',skillname)
         print('city',city)
         print('salary',salary)
         print('education',education)
         print('workyear',workyear)
-        print('date_begin',date_begin)
-        print('date_end',date_end)
+        print('chart_type',chart_type)
+        print('chart_info',chart_info)
 
         if salary == "不限":
             salary = ''
@@ -79,12 +79,38 @@ def showcharts():
         if workyear == '不限':
             workyear = ''
 
-        if date_end == '':
-            date_end = datetime.date.today()
+        if chart_info == '技能':
+            skillname = ''
+        elif chart_info == '城市':
+            city = ''
+        elif chart_info == '薪资':
+            salary = ''
+        elif chart_info == '学历':
+            education = ''
+        elif chart_info == '工作经验':
+            workyear = ''
 
+        positions = Position.query.filter(
+            Position.skillName.like('%'+skillname+'%'),
+            Position.city.like('%'+city+'%'),
+            Position.salary.like('%'+salary+'%'),
+            Position.education.like('%'+education+'%'),
+            Position.workYear.like('%'+workyear+'%'),
+        )
 
-        return jsonify(city=city,education=education,
-                       salary=salary,skillname = skillname)
+        if chart_info == '技能':
+            result,resultnum = Parse.getSkillData(positions)
+        elif chart_info == '城市':
+            result,resultnum = Parse.getCityData(positions)
+        elif chart_info == '薪资':
+            result,resultnum = Parse.getSalaryData(positions)
+        elif chart_info == '学历':
+            result,resultnum = Parse.getEducationData(positions)
+        elif chart_info == '工作经验':
+            result,resultnum = Parse.getSkillData(positions)
+
+        return jsonify(result=result,resultnum=resultnum,
+                       chart_type=chart_type,chart_info = chart_info)
     else:
         user = g.user
         return render_template('showcharts.html', user=user)
