@@ -37,62 +37,102 @@ def simple_query():
     print(result)
     return render_template('simple.html', search=search, result=result, user=user, pagination=pagination)
 
-@main.route('/pro_query',methods = ['POST','GET'])
-def pro_query():
-    if request.method == 'POST':
-        search = request.form.get('search')
-        city = request.form.get('city')
-        salary = request.form.get('salary')
-        education = request.form.get('education')
-        workyear = request.form.get('workyear')
-        date_begin = request.form.get('date_begin')
-        date_end = request.form.get('date_end')
-        user = g.user
-        page = request.args.get('page', 1, type=int) #分页
-        pagination = Position.query.filter(
-                Position.skillName.like('%'+search+'%'),
-                Position.city == city,
-                Position.salary == salary,
-            Position.education == education,
-            Position.workYear == workyear,
-            Position.createTime.between(date_begin,date_end)
-        ).order_by(Position.createTime.desc()).paginate(page,per_page=20,error_out=False)
-        result = pagination.items #分页功能
-        print('职位对象',result)
 
-        position_json = {}
-        i = 1
-        for r in result:
-            position_dict = {}
-            position_dict['positionId'] = r.positionId
-            position_dict['skillName'] = r.skillName
-            position_dict['createTime'] = Parse.format_date(r.createTime)
-            position_dict['education'] = r.education
-            position_dict['city'] = r.city
-            position_dict['positionName'] = r.positionName
-            position_dict['workYear'] = r.workYear
-            position_dict['salary'] = r.salary
-            position_dict['companyShortName'] = r.companyShortName
-            position_json['position'+str(i)] = position_dict
-            i = i + 1
-        print('职位json',position_json)
-        return jsonify(**position_json)
-
-#测试
-@main.route('/test') # 简单查询 将数据库中的爬取的职位信息全部展示出来
+@main.route('/test')
 def test():
+    return render_template('test.html')
+
+@main.route('/pro_query',methods = ['POST','GET']) # 简单查询 将数据库中的爬取的职位信息全部展示出来
+def pro_query():
+    search = request.args.get('search') #获取查询内容
+    city = request.args.get('city') #获取查询内容
+    salary = request.args.get('salary') #获取查询内容
+    education = request.args.get('education')
+    workyear = request.args.get('workyear')
+    date_begin = request.args.get('date_begin') #获取查询内容
+    date_end = request.args.get('date_end') #获取查询内容
+    print("search",search)
+    print("city",city)
+    print("salary",salary)
+    print("education",education)
+    print("workyear",workyear)
+
+    print("date_begin",date_begin)
+    print("date_end",date_end)
+
+    if salary == "不限":
+        salary = ''
+
+    if education == "不限":
+        education = ''
+
+    if workyear == '不限':
+        workyear = ''
+
+    if date_end == '':
+        date_end = datetime.date.today()
+
+    print(date_end)
+
     user = g.user
     page = request.args.get('page', 1, type=int) #分页
-    search = request.args.get('search') #获取查询内容
-    pagination = Position.query.filter(Position.skillName == search).order_by(Position.createTime.desc()).paginate(page,
-                                                                                                                   per_page=20,
-                                                                                                                   error_out=False)
-    # pagination = Position.query.filter(Position.skillName.like('%'+search+'%')).order_by(Position.createTime.desc()).paginate(page,
-    #                                                                                                                per_page=20,
-    #                                                                                                                error_out=False)
+    pagination = Position.query.filter(
+            Position.skillName.like('%'+search+'%'),
+            Position.city.like('%'+city+'%'),
+            Position.salary.like('%'+salary+'%'),
+            Position.education.like('%'+education+'%'),
+            Position.workYear.like('%'+workyear+'%'),
+            Position.createTime.between(date_begin,date_end)
+        ).order_by(Position.createTime.desc()).paginate(page,per_page=10,error_out=False)
     result = pagination.items #分页功能
-    print(result)
-    return render_template('test.html', search=search, result=result, user=user, pagination=pagination)
+    #
+    # result_not_salary = Position.query.filter(
+    #         Position.skillName.like('%'+search+'%'),
+    #         Position.city.like('%'+city+'%'),
+    #         Position.education.like('%'+education+'%'),
+    #         Position.workYear.like('%'+workyear+'%'),
+    #         Position.createTime.between(date_begin,date_end)
+    #     ).order_by(Position.createTime.desc())
+    #
+    # print(type(result_not_salary))
+    #
+    # min_salary = int(salary.lower().split('k', 1)[0])
+    # str = salary.lower().split('k')[1].split('-')
+    # if len(str) == 2:
+    #     max_salary = int(salary.lower().split('k')[1].split('-')[1])
+    # elif len(str) == 1:
+    #     max_salary = min_salary
+    # print("min",min_salary)
+    # print("max",max_salary)
+    # result_salary = []
+    #
+    # for r in result_not_salary:
+    #     low = int(r.salary.lower().split('k', 1)[0])
+    #     str = r.salary.lower().split('k')[1].split('-')
+    #     if len(str) == 2:
+    #         high = int(r.salary.lower().split('k')[1].split('-')[1])
+    #     elif len(str) == 1:
+    #         high = low
+    #     avg = (low + high) / 2
+    #     if min_salary != max_salary:
+    #         if avg >= min_salary and avg < max_salary:
+    #             result_salary.append(r)
+    #     else:
+    #         if avg >= max_salary:
+    #             result_salary.append(r)
+    #
+    #
+    #
+    # pagination = result_salary.paginate(page,per_page=10,error_out=False)
+    #
+    # result = pagination.items #分页功能
+
+    print('职位对象',result)
+    return render_template('proquery.html', search=search,city=city,salary=salary,
+                           education=education,workyear=workyear,date_begin=date_begin,
+                           date_end=date_end,result=result, user=user, pagination=pagination)
+
+
 
 @main.route('/count_query') #
 def count_query():

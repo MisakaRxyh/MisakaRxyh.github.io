@@ -39,6 +39,10 @@ def simple():
     user = g.user
     return render_template('simple.html', user=user)  # 比如在simple.html页面中 就可以使用 {{user}}的方式来读取user的值
 
+@main.route('/proquery')  # 简单查询
+def proquery():
+    user = g.user
+    return render_template('proquery.html', user=user)  # 比如在simple.html页面中 就可以使用 {{user}}的方式来读取user的值
 
 @main.route('/count', methods = ['GET','POST'])  # 统计查询
 def count():
@@ -47,6 +51,43 @@ def count():
     else:
         user = g.user
         return render_template('count.html', user=user)
+
+@main.route('/showcharts', methods = ['GET','POST'])  # 统计查询
+def showcharts():
+    if request.method == 'POST':
+        skillname = request.form.get('search')
+        city = request.form.get('city') #获取查询内容
+        salary = request.form.get('salary') #获取查询内容
+        education = request.form.get('education')
+        workyear = request.form.get('workyear')
+        date_begin = request.form.get('date_begin') #获取查询内容
+        date_end = request.form.get('date_end') #获取查询内容
+        print('skillname',skillname)
+        print('city',city)
+        print('salary',salary)
+        print('education',education)
+        print('workyear',workyear)
+        print('date_begin',date_begin)
+        print('date_end',date_end)
+
+        if salary == "不限":
+            salary = ''
+
+        if education == "不限":
+            education = ''
+
+        if workyear == '不限':
+            workyear = ''
+
+        if date_end == '':
+            date_end = datetime.date.today()
+
+
+        return jsonify(city=city,education=education,
+                       salary=salary,skillname = skillname)
+    else:
+        user = g.user
+        return render_template('showcharts.html', user=user)
 
 @main.route('/statistics', methods = ['GET','POST'])  # 统计查询
 def statistics():

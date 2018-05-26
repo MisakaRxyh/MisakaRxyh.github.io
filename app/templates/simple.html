@@ -28,7 +28,7 @@
         </tr>
         {% for r in result %}
         <tr>
-            <td height="57px">{{ r.positionId }}</td>
+            <td height="57px"><a href="https://www.lagou.com/jobs/{{r.positionId}}.html">{{ r.positionId }}</a></td>
             <td height="57px">{{ r.positionName }}</td>
             <td height="57px">{{ r.companyShortName }}</td>
             <td height="57px">{{ r.city }}</td>

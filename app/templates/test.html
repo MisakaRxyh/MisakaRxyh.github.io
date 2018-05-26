@@ -29,7 +29,7 @@
     <form>
         <label><input class="form-control" type="text" id="search" value=""></label><br>
         <label>城市选择
-            <select id="loc_province" style="width:120px;"></select>
+            <select  id="loc_province" style="width:120px;"></select>
             <select id="loc_city" style="width:120px; margin-left: 10px"></select>
         </label><br>
         <label>月薪
@@ -91,12 +91,33 @@
         console.log(date_begin)
         console.log(date_end)
         $.post('/pro_query',{'search':search,'city':city,'salary':salary,'education':education,
-            'workyear':workyear,'date_begin':date_begin,'date_end':date_end}).done(result)
+            'workyear':workyear,'date_begin':date_begin,'date_end':date_end})
+//        $.post('/pro_query',{'search':search,'city':city,'salary':salary,'education':education,
+//            'workyear':workyear,'date_begin':date_begin,'date_end':date_end}).done(result)
     }
 
     var result = function(data){
-        if(data != null){
+        if(data) {
+            var str = ''
+            for (i in data) {
+                console.log(data[i])
+                str += "<tr>" +
+                        "<td>" + data[i].positionId + "</td>" +
+                        "<td>" + data[i].positionName + "</td>" +
+                        "<td>" + data[i].companyShortName + "</td>" +
+                        "<td>" + data[i].city + "</td>" +
+                        "<td>" + data[i].salary + "</td>" +
+                        "<td>" + data[i].education + "</td>" +
+                        "<td>" + data[i].workYear + "</td>" +
+                        "<td>" + data[i].createTime + "</td>" +
+                        "</tr>";
 
+            }
+
+            document.getElementById('result').innerHTML = str;
+        }
+        else{
+            document.getElementById('table').innerHTML = "未查询到任何数据"
         }
     }
 
@@ -201,8 +222,48 @@
 </div>
 {% endif %}
 
-<div class="simple" id="result">
+<div class="simple">
+<table class="table" id="table">
+        <tr>
+            <th>职位编号</th>
+            <th width="180px">职位名称</th>
+            <th width="180px">公司简称</th>
+            <th>所在城市</th>
+            <th>基本薪资</th>
+            <th>学历要求</th>
+            <th>工作经验</th>
+            <th>发布时间</th>
+        </tr>
+    <tbody id="result">
 
+    </tbody>
+
+    </table>
+    <nav aria-label="Page navigation" style="text-align: center">
+        <ul class="pagination">
+            <li>
+                <a
+                   aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% for p in pagination.iter_pages() %}
+            <li class="{% if pagination.page == p %}active{% endif %}">
+                {% if p == None %}
+                <a class="disabled" href="#">...</a>
+                {% else %}
+                <a>{{p}}</a>
+                {% endif %}
+            </li>
+            {% endfor %}
+            <li>
+                <a href=
+                   aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 </div>
 
 {% endblock %}
