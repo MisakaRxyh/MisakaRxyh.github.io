@@ -107,7 +107,7 @@ def showcharts():
         elif chart_info == '学历':
             result,resultnum = Parse.getEducationData(positions)
         elif chart_info == '工作经验':
-            result,resultnum = Parse.getSkillData(positions)
+            result,resultnum = Parse.getWorkyearData(positions)
 
         return jsonify(result=result,resultnum=resultnum,
                        chart_type=chart_type,chart_info = chart_info)
@@ -133,6 +133,8 @@ def statistics():
         education_string,educationnum_string = Parse.listToString(education,educationnum)
 
         querydate = datetime.date.today()
+        collectnum = Collect.query.filter(Collect.queryName == skillname,Collect.collectDate==querydate).count()
+
         stat = Stat(
             city = city_string,
             cityNum = citynum_string,
@@ -152,7 +154,8 @@ def statistics():
             db.session.commit()
 
         return jsonify(city=city,citynum=citynum,education=education,
-                       educationnum=educationnum,salary=salary,salarynum=salarynum,skillname = skillname)
+                       educationnum=educationnum,salary=salary,salarynum=salarynum,skillname = skillname,
+                       collectnum = collectnum)
     else:
         user = g.user
         return render_template('statistics.html', user=user)
@@ -170,6 +173,8 @@ def alldata():
     print(education,educationnum)
 
     querydate = datetime.date.today()
+    collectnum = Collect.query.filter(Collect.queryName == skillname,Collect.collectDate==querydate).count()
+
     city_string,citynum_string = Parse.listToString(city,citynum)
     salary_string,salarynum_string = Parse.listToString(salary,salarynum)
     education_string,educationnum_string = Parse.listToString(education,educationnum)
@@ -196,7 +201,8 @@ def alldata():
         db.session.add(stat)
         db.session.commit()
     return jsonify(city=city,citynum=citynum,salary=salary,salarynum=salarynum,
-                   education=education,educationnum=educationnum,skillname = skillname)
+                   education=education,educationnum=educationnum,skillname = skillname,
+                   collectnum=collectnum)
 
 
 @main.route('/logout')  # 用户登出
@@ -398,6 +404,12 @@ def collect():
             return '收藏成功'
         else:
             return '已经收藏过了'
+    else:
+        user = g.user
+        collections = user.collections  # 获取当前用户的收藏信息 collections是一个列表
+        for collection in collections:
+            print(collection.collectDate)
+        return render_template('collect.html', user=user, collections=collections)
 
 
 

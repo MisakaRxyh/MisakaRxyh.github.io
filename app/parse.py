@@ -197,6 +197,21 @@ class Parse:
             salarynum.append(v)
         return salary,salarynum
 
+    def getWorkyearData(positions):
+        workyear_context = {}
+        for position in positions:
+            if position.workYear not in workyear_context.keys():
+                workyear_context[position.workYear] = 1
+            else:
+                workyear_context[position.workYear] += 1
+        print(workyear_context)
+        workyear = []
+        workyearnum  = []
+        for k,v in workyear_context.items():
+            workyear.append(k)
+            workyearnum.append(v)
+        return workyear,workyearnum
+
     def listToString(trans,transnum):
         trans_string = ''
         transnum_string = ''

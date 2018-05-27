@@ -16,7 +16,7 @@
             <input class="btn btn-default" type="button" id="sub" value="查询">
         </form>
     {% if user %}
-        <a href="#" onclick="collect()">收藏此页</a>
+        <button class="btn btn-primary" type="button" onclick="collect()">收藏此页 <span class="badge" id="collectnum"></span></button>
     {% endif %}
 
     </div>
@@ -28,6 +28,19 @@
 
 
 <script>
+//     $(document).ready(function(){
+//        $('#a').hover(function() {
+//            $("#collectnum").css('display', 'block');
+//        }, function() {
+//           $("#collectnum").css('display', 'none');
+//        });
+//            $("#collectnum").hover(function() {
+//                $(this).css('display', 'block');;
+//            }, function() {
+//                $(this).css('display', 'none');
+//            });
+// })
+
 //ng-repeat
     $("#sub").click(function () {
 //        $.ajax({
@@ -46,7 +59,7 @@
             alert("查询内容不能为空");
         }
         else {
-            $.post('/statistics', {"search": serach}).done(update_citychart2, update_educationchart2, update_salarychart2);
+            $.post('/statistics', {"search": serach}).done(update_citychart2, update_educationchart2, update_salarychart2,show_collectnum);
         }
     });
 
@@ -243,11 +256,15 @@
     salaryChart.showLoading();
     educationChart.showLoading();
 
+    var show_collectnum = function(data){
+        document.getElementById("collectnum").innerText = data.collectnum
+    }
+
     console.log("000")
     // 异步加载数据 （首次，get，显示6个数据）
     //$.get('/statistics').done(update_mychart);
     console.log("111")
-    $.get('/alldata').done(update_citychart1, update_educationchart1, update_salarychart1);
+    $.get('/alldata').done(update_citychart1, update_educationchart1, update_salarychart1,show_collectnum);
     console.log('2222')
 
 </script>

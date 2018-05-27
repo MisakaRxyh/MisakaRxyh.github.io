@@ -3,7 +3,7 @@
 {% block head %}
 <title>主页</title>
 <script src="{{ url_for('static', filename='js/jquery-3.3.1.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/echarts.common.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/echarts.common.min.js') }}"></script>
 {% endblock %}
 
 {% block main %}
@@ -11,6 +11,7 @@
 <div class="jumbotron">
   <h1>近期招聘信息展示网站</h1>
 </div>
+
 {% if skill %}
 <div>
     <ul class="nav nav-pills" role="tablist">
