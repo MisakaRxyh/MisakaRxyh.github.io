@@ -43,9 +43,10 @@ class Collect(db.Model):
     collectID = db.Column(db.Integer,primary_key=True,autoincrement=True)
     userID = db.Column(db.Integer,db.ForeignKey('user.userID'),nullable=False)
     #statisticsID = db.Column(db.Integer,db.ForeignKey('statistics.statisticsID'),nullable=False)
-    statisticsID = db.Column(db.Integer,db.ForeignKey('stat.statID'),nullable=False)
+    statisticsID = db.Column(db.Integer,db.ForeignKey('stat.statID'),nullable=True)
+    positionID = db.Column(db.Integer,db.ForeignKey('position.positionId'),nullable=True)
     collectDate = db.Column(db.Date,nullable=False)
-    queryName = db.Column(db.String(20),nullable=False)
+    queryName = db.Column(db.String(20),nullable=True)
 
     collecter = db.relationship('User',backref= db.backref('collections'))
 

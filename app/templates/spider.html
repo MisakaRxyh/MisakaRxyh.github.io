@@ -2,33 +2,46 @@
 
 {% block head %}
 <title>spider</title>
+
+
+
+
 {% endblock %}
 
 {% block main %}
+<div style="width: 40%;float: left">
 <div class="form-group">
     <form method="post" action="/spider">
-        爬起范围：<input type="text" name="startskill" id="startskill"> - <input type="text" name="endskill" id="endskill">
-        爬取页面数：<input type="text" name="pagerange" id="pagerange">
-        <input type="button" id="sub" class="btn btn-default" value="爬取数据">
+        目标URL：<input class="form-control" type="text" name="url" id="url" value="https://www.lagou.com/jobs/positionAjax.json" disabled>
+        爬取范围：<input class="form-control" type="text" name="startskill" id="startskill"> - <input class="form-control" type="text" name="endskill" id="endskill">
+        爬取页面数：<input class="form-control" type="text" name="pagerange" id="pagerange">
+        <input class="btn btn-default" type="button" id="sub" class="btn btn-default" value="爬取数据">
         <br>
-        <!--<p>-->
-        <!--{% if g.spiderstate == 0 %}-->
-        <!--爬虫未启动-->
-        <!--{% endif %}-->
-        <!--{% if g.spiderstate == 1 %}-->
-        <!--爬虫正在运行中-->
-        <!--{% endif %}-->
-        <!--{% if g.spiderstate == 2 %}-->
-        <!--爬取数据成功-->
-        <!--{% endif %}-->
-        <!--{% if g.spiderstate == 3 %}-->
-        <!--爬取数据失败-->
-        <!--{% endif %}-->
-        <!--</p>-->
     </form>
     <div id="spiderstate"></div>
 
 </div>
+</div>
+
+<div style="float: right">
+    {% for s in skill %}
+    {% if s.skillID <= 30 %}
+    <a href="">{{s.skillID}}:{{s.skillName}}</a><br>
+    {% endif %}
+    {% endfor %}
+</div>
+<div style="float: right">
+    {% for s in skill %}
+    {% if s.skillID > 30 %}
+    <a>{{s.skillID}}:{{s.skillName}}</a><br>
+    {% endif %}
+    {% endfor %}
+</div>
+
+
+
+
+
 <script>
     var spiderstate = 2
 
@@ -36,9 +49,11 @@
         var startskill = document.getElementById('startskill').value
         var endskill = document.getElementById('endskill').value
         var pagerange = document.getElementById('pagerange').value
+        var url = document.getElementById('url').value
         console.log(startskill)
         console.log(endskill)
         console.log(pagerange)
+        console.log(url)
 //        var p = 1
 //        if(startskill <= endskill){
 //            if(p <= pagerange){
@@ -53,7 +68,7 @@
 //        else{
 //            document.getElementById('sub').value = "结束"
 //        }
-        $.post('/spider', {"startskill": startskill, "endskill": endskill, "pagerange": pagerange}).done(update_spiderstate)
+        $.post('/spider', {"startskill": startskill, "endskill": endskill, "pagerange": pagerange,"url":url}).done(update_spiderstate)
 //
 //        for(var s = startskill; s <= endskill; s++){
 //            console.log(s)

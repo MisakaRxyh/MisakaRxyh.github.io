@@ -98,6 +98,8 @@ def showcharts():
             Position.workYear.like('%'+workyear+'%'),
         )
 
+        allnumber = Position.query.filter().count()
+
         if chart_info == '技能':
             result,resultnum = Parse.getSkillData(positions)
         elif chart_info == '城市':
@@ -109,7 +111,7 @@ def showcharts():
         elif chart_info == '工作经验':
             result,resultnum = Parse.getWorkyearData(positions)
 
-        return jsonify(result=result,resultnum=resultnum,
+        return jsonify(result=result,resultnum=resultnum,allnumber = allnumber,
                        chart_type=chart_type,chart_info = chart_info)
     else:
         user = g.user
@@ -254,20 +256,6 @@ def statisticslist():
     return render_template('statisticslist.html', result=result, user=user, pagination=pagination)
 
 @main.route('/spider', methods = ['GET','POST'])
-# def spider():
-#     user = g.user
-#     if request.method == 'GET':
-#         return render_template('spider.html',user = user)
-#     else:
-#         startskill = int(request.form.get('startskill'))
-#         endskill = int(request.form.get('endskill'))
-#         pagerange = int(request.form.get('pagerange'))
-#         print("开始之前:",session.get("spiderstate"))
-#         start(startskill,endskill,pagerange)
-#         print("开始之后:",session.get("spiderstate"))
-#         # return jsonify(spiderstate = g.spiderstate)
-#         return "end"
-#         # return render_template("spider.html",user = user,spiderstate = g.spiderstate)
 def spider():
     user = g.user
     if request.method == 'GET':
@@ -276,8 +264,9 @@ def spider():
         beginskill = int(request.form.get('startskill'))
         endskill = int(request.form.get('endskill'))
         pagerange = int(request.form.get('pagerange'))
-        start(beginskill,endskill,pagerange)
-        return "爬取结束"
+        url = request.form.get('url')
+        info = start(url,beginskill,endskill,pagerange)
+        return info
         # print(kd_list(beginskill,endskill))
         # cityList = [u'']
         # url = 'https://www.lagou.com/jobs/positionAjax.json'
@@ -407,10 +396,39 @@ def collect():
     else:
         user = g.user
         collections = user.collections  # 获取当前用户的收藏信息 collections是一个列表
+        collectinos_position = []
+        collections_statistics = []
         for collection in collections:
-            print(collection.collectDate)
-        return render_template('collect.html', user=user, collections=collections)
+            if collection.positionID != None:
+                position = Position.query.filter(Position.positionId==collection.positionID).first()
+                position_and_collection = [position,collection]
+                collectinos_position.append(position_and_collection)
+            else:
+                collections_statistics.append(collection)
 
+        return render_template('collect.html', user=user, collectinos_position=collectinos_position,collections_statistics=collections_statistics)
+
+@main.route('/collect_position',methods = ['POST','GET'])
+def collect_position():
+    if request.method == 'POST':
+        positionid = request.form.get('positionid')
+        user = g.user
+        querydate = datetime.date.today()
+        collection = Collect(
+                userID = user.userID,
+                positionID = positionid,
+                collectDate = querydate,
+            )
+        positionids = []
+        for collections in user.collections:
+            positionids.append(collections.positionID)
+        print(positionids)
+        if collection.positionID not in positionids:
+            db.session.add(collection)
+            db.session.commit()
+            return '收藏成功'
+        else:
+            return '已经收藏过了'
 
 
 
@@ -436,15 +454,13 @@ def detail():
         return render_template('detail.html', statisticsID=statisticsID, user=user)
 
 
-@main.route('/delete')  # 删除收藏
-def delete():
-    statisticsID = request.args.get('statisticsID')
-    user = g.user
-    collection = Collect.query.filter(Collect.statisticsID == statisticsID).first()
+@main.route('/delete_collect',methods = ['POST'])  # 删除收藏
+def delete_collect():
+    collectid = request.form.get('collectid')
+    collection = Collect.query.filter(Collect.collectID == collectid).first()
     db.session.delete(collection)  # 删除
     db.session.commit()
-    collections = user.collections
-    return render_template('home.html', user=user, collections=collections)
+    return "删除成功"
 
 
 @main.before_request  # 钩子函数 在路由函数之前执行

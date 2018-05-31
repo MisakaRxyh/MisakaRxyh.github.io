@@ -17,7 +17,7 @@
 <div class="simple">
     <table class="table">
         <tr>
-            <th>职位编号</th>
+            <th>岗位编号</th>
             <th width="180px">职位名称</th>
             <th width="180px">公司简称</th>
             <th>所在城市</th>
@@ -36,6 +36,9 @@
             <td height="57px">{{ r.education }}</td>
             <td height="57px">{{ r.workYear }}</td>
             <td height="57px">{{ r.createTime }}</td>
+            {% if user %}
+            <td height="57px"><a onclick="collect({{ r.positionId }})">收藏</a></td>
+            {% endif %}
         </tr>
         {% endfor %}
     </table>
@@ -71,5 +74,15 @@
     <p>没有查询到结果</p>
 </div>
 {% endif %}
+
+<script>
+    function collect(positionid){
+        $.post('/collect_position',{"positionid":positionid}).done(result);
+    }
+
+    var result = function(data){
+        alert(data);
+    }
+</script>
 
 {% endblock %}

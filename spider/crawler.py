@@ -102,7 +102,7 @@ def crawler_main(url, para,pagerange):
     else:
         return None
 
-def start(beginskill,endskill,pagerange):
+def start(url,beginskill,endskill,pagerange):
     kdList = [u'']
     # g.spiderstate = 1
     # print(g.spiderstate)
@@ -110,7 +110,7 @@ def start(beginskill,endskill,pagerange):
     print("运行开始",session.get("spiderstate"))
     # print(kd_list())
     cityList = [u'']
-    url = 'https://www.lagou.com/jobs/positionAjax.json'
+    #url = 'https://www.lagou.com/jobs/positionAjax.json'
     try:
         for kd in kd_list(beginskill,endskill):
             print("运行中",session.get("spiderstate"))
@@ -120,10 +120,12 @@ def start(beginskill,endskill,pagerange):
             print('%s爬取成功' % kd)
             # g.spiderstate = 2
             session['spiderstate'] = 2
+            return "爬虫结束，爬取成功"
     except Exception as e:
         print("爬取失败,在%s处遇到错误" % kd)
         # g.spiderstate = 3
         session['spiderstate'] = 3
+        return "爬虫中断，在%s处遇到错误" % kd
 #
 # def start():
 #     info = "success"
