@@ -7,7 +7,7 @@ from exts import db
 from . import main
 from app.decorators import login_required
 import datetime
-from spider.crawler import crawler_main,kd_list,start
+from spider.crawler import crawler_main,kd_list,start,start_keyword
 from app.analysis import get_last_month
 from app.parse import Parse
 # 主要路由映射
@@ -281,7 +281,27 @@ def spider():
         #     print("爬取失败,在%s处遇到错误" % kd)
         #     return jsonify(page = startpage,skillname = kd,spiderstate = 3)
 
+@main.route('/spider_keyword', methods = ['POST'])
+def spider_keyword():
+    keyword = request.form.get('keyword')
+    url = request.form.get('url')
+    info = start_keyword(url,keyword)
+    return info
 
+@main.route('/add_keyword',methods = ['POST'])
+def add_keyword():
+    keyword = request.form.get('keyword')
+    skill = Skill.query.filter(Skill.skillName == keyword).first()
+    if skill:
+        return "关键词已经存在，无需增加，请直接爬取数据"
+    else:
+        skill = Skill(
+            skillName = keyword,
+            skillNum = 0,
+        )
+        db.session.add(skill)
+        db.session.commit()
+        return "关键字已经保存，可以对其进行爬取"
 
 @main.route('/spiderstate', methods = ['GET','POST'])
 def spiderstate():

@@ -11,18 +11,13 @@
 <script src="{{ url_for('static', filename='js/echarts.min.js') }}"></script>
 <script src="{{url_for('static',filename = 'js/bootstrap-datepicker.min.js')}}"></script>
 <script src="{{url_for('static',filename = 'js/bootstrap-datepicker.zh-CN.js')}}"></script>
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
-<link href="css/style.css" type="text/css" rel="stylesheet">
-
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
-
+<script src="{{url_for('static',filename = 'js/bootstrap-select.min.js')}}"></script>
 
 <link rel="stylesheet" href="{{url_for('static',filename = 'css/simple.css')}}">
 <link rel="stylesheet" href="{{url_for('static',filename = 'css/common.css')}}">
 <link rel="stylesheet" href="{{url_for('static',filename = 'css/style.css')}}">
 <link rel="stylesheet" href="{{url_for('static',filename = 'css/bootstrap-datepicker.min.css')}}">
+<link rel="stylesheet" href="{{url_for('static',filename = 'css/bootstrap-select.min.css')}}">
 
 {% endblock %}
 
@@ -89,7 +84,7 @@
             </select>
 
         </label>
-        <input type="checkbox" name="" id=""> 显示条件外岗位数
+        <input type="checkbox" name="checkbox" id="checkbox"> 显示条件外岗位数
         <input class="btn btn-default" type="button" id="sub" value="查询">
     </form>
 </div>
@@ -266,6 +261,8 @@
     function getseries_by_data(data) {
         var serie = []
         var number = 0
+        var checkbox = $("input[type='checkbox']").is(':checked')
+        console.log(checkbox)
         for (var i = 0; i < data.resultnum.length; i++) {
             var item = {
                 name: data.result[i],
@@ -275,7 +272,7 @@
             number += data.resultnum[i]
             serie.push(item)
         }
-        if(data.allnumber - number != 0) {
+        if(data.allnumber - number != 0 && checkbox) {
             var item = {
                 name: "条件外岗位数",
                 value: data.allnumber - number,

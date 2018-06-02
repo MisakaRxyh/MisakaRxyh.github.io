@@ -10,6 +10,12 @@ class User(db.Model):
     userAccount = db.Column(db.String(20),nullable=False)
     userPwd = db.Column(db.String(20),nullable=False)
     Admin = db.Column(db.Integer,nullable=False)
+    userAge = db.Column(db.Integer,nullable=True)
+    userCity = db.Column(db.String(20),nullable=True)
+    userIndustry = db.Column(db.String(20),nullable=True)
+    userProfession = db.Column(db.String(20),nullable=True)
+    userCompany = db.Column(db.String(20),nullable=True)
+    userSign = db.Column(db.String(50),nullable=True)
 
 class Statistics(db.Model):
     __tablename__ = 'statistics'

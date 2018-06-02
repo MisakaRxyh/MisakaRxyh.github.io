@@ -10,23 +10,39 @@
 
 {% block main %}
 <div style="width: 40%;float: left">
-<div class="form-group">
-    <form method="post" action="/spider">
-        目标URL：<input class="form-control" type="text" name="url" id="url" value="https://www.lagou.com/jobs/positionAjax.json" disabled>
-        爬取范围：<input class="form-control" type="text" name="startskill" id="startskill"> - <input class="form-control" type="text" name="endskill" id="endskill">
-        爬取页面数：<input class="form-control" type="text" name="pagerange" id="pagerange">
-        <input class="btn btn-default" type="button" id="sub" class="btn btn-default" value="爬取数据">
+    <div class="form-group">
+        <h3>批量爬取</h3>
+        <form method="post" action="/spider">
+            目标URL：<input class="form-control" type="text" name="url" id="url" value="https://www.lagou.com/jobs/positionAjax.json" disabled>
+            爬取范围：<input class="form-control" type="text" name="startskill" id="startskill"> - <input class="form-control" type="text" name="endskill" id="endskill">
+            爬取页面数：<input class="form-control" type="text" name="pagerange" id="pagerange">
+            <input class="btn btn-default" type="button" id="sub" class="btn btn-default" value="爬取数据">
+            <br>
+        </form>
+    </div>
+     <br>
         <br>
-    </form>
-    <div id="spiderstate"></div>
-
-</div>
+    <div class="form-group">
+        <h3>按关键字爬取</h3>
+        <div style="float: left">
+        <form method="post">
+            增加关键字：<input style="width: 150px" class="form-control" type="text" name="addkeyword" id="addkeyword">
+            <input  class="btn btn-default" type="button" id="sub_add" class="btn btn-default" value="增加">
+        </form>
+        </div>
+        <div style="float: right;">
+        <form method="post">
+            关键字：<input style="width: 150px" class="form-control" type="text" name="keyword" id="keyword">
+            <input  class="btn btn-default" type="button" id="sub_key" class="btn btn-default" value="爬取数据">
+        </form>
+        </div>
+    </div>
 </div>
 
 <div style="float: right">
     {% for s in skill %}
     {% if s.skillID <= 30 %}
-    <a href="">{{s.skillID}}:{{s.skillName}}</a><br>
+    <a>{{s.skillID}}:{{s.skillName}}</a><br>
     {% endif %}
     {% endfor %}
 </div>
@@ -54,84 +70,38 @@
         console.log(endskill)
         console.log(pagerange)
         console.log(url)
-//        var p = 1
-//        if(startskill <= endskill){
-//            if(p <= pagerange){
-//            p++;
-//            }
-//            else{
-//                startskill += 1;
-//                p=1;
-//            }
-//            post_spider(startskill,p);
-//        }
-//        else{
-//            document.getElementById('sub').value = "结束"
-//        }
-        $.post('/spider', {"startskill": startskill, "endskill": endskill, "pagerange": pagerange,"url":url}).done(update_spiderstate)
-//
-//        for(var s = startskill; s <= endskill; s++){
-//            console.log(s)
-////            var delaytime = randomNum(5000,10000)
-////            console.log(delaytime)
-////            window.setTimeout(function(){
-////                post_spider(pagerange)
-////            },delaytime)
-//            for(var p = 1; p <= pagerange; p++){
-//                console.log(p)
-//                console.log(spiderstate)
-//                if(spiderstate == 2){
-//                    spiderstate = 1
-//                    $.post('/spider', {"startskill": s, "endskill": s, "startpage": p,"endpage":p+1}).done(update_spiderstate)
-//                }
-//
-//            }
-//        }
-//        if(spiderstate != 3){
-//            document.getElementById('spiderstate').innerHTML = "爬取数据成功"
-//        }
+        if(startskill!= '' && endskill != '' && pagerange != '' && url != ''){
+            $.post('/spider', {"startskill": startskill, "endskill": endskill, "pagerange": pagerange,"url":url}).done(result)
+        }
+        else{
+            alert("请确认爬虫运行条件填写完整")
+        }
     })
 
-    function post_spider(s,p){
-        $.post('/spider', {"startskill": s, "endskill": s, "startpage": p,"endpage":p+1}).done(update_spiderstate)
+    $("#sub_add").click(function(){
+        var keyword = document.getElementById('addkeyword').value
+        if(keyword != '') {
+            $.post('/add_keyword', {'keyword': keyword}).done(result)
+        }
+        else {
+            alert("请输入要增加的关键字")
+        }
+    })
 
-    }
+    $("#sub_key").click(function(){
+        var keyword = document.getElementById('keyword').value
+        var url = document.getElementById('url').value
+        if(keyword != '') {
+            $.post('/spider_keyword',{'keyword':keyword,"url": url}).done(result)
+        }
+        else {
+            alert("请输入要爬取的关键字")
+        }
+    })
 
-    function randomNum(minNum,maxNum){
-    switch(arguments.length){
-        case 1:
-            return parseInt(Math.random()*minNum+1,10);
-        break;
-        case 2:
-            return parseInt(Math.random()*(maxNum-minNum+1)+minNum,10);
-        break;
-            default:
-                return 0;
-            break;
-    }
-}
-
-    var update_spiderstate = function (data) {
+    var result = function (data) {
         alert(data)
-//        if (data.spiderstate == 1) {
-//            document.getElementById('spiderstate').innerHTML = "爬虫运行中,已爬取"+data.skillname+"岗位,第"+data.page+"页"
-//        }
-//        else if (data.spiderstate == 3) {
-//            document.getElementById('spiderstate').innerHTML = "爬取数据失败,在爬取"+data.skillname+"的第"+data.page+"页时出错"
-//        }
-//        spiderstate = data.spiderstate + 1
-//
-//        document.getElementById('sub').value = "下一页"
     }
-    console.log("000")
-    // 异步加载数据 （首次，get，显示6个数据）
-    $.get('/spiderstate').done(update_spider);
-    console.log("111")
 
-    // 异步更新数据 （以后，定时post，取回1个数据）
-    //    var timeTicket = setInterval(function () {
-    //        $.post('/spiderstate').done(update_spider);
-    //        console.log("222")
-    //    }, 10000);
 </script>
 {% endblock %}

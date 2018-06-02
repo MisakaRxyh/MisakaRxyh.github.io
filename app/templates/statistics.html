@@ -96,7 +96,10 @@
         },
         tooltip: {
             trigger: 'item',
-            formatter: "{a} <br/>{b} : {c} ({d}%)"
+            formatter: "{a} <br/>{b} : {c} ({d}%)",
+            "textStyle": {
+                "fontSize": 18
+            }
         },
         legend: {
             orient: 'vertical',
@@ -116,7 +119,18 @@
                         shadowOffsetX: 0,
                         shadowColor: 'rgba(0, 0, 0, 0.5)'
                     }
+                },
+                 "label": {
+            "normal": {
+                "show": true,
+                "textStyle": {
+                    "fontSize": 18
                 }
+            },
+            "emphasis": {
+                "show": true
+            }
+        },
             }
         ]
     };

@@ -126,6 +126,21 @@ def start(url,beginskill,endskill,pagerange):
         # g.spiderstate = 3
         session['spiderstate'] = 3
         return "爬虫中断，在%s处遇到错误" % kd
+
+def start_keyword(url,keyword):
+    kdList = [u'']
+    print("运行开始",session.get("spiderstate"))
+    cityList = [u'']
+    #url = 'https://www.lagou.com/jobs/positionAjax.json'
+    try:
+        print('爬取%s' % keyword)
+        para = {'first': 'true', 'pn': '1', 'kd': keyword, 'city': cityList[0]}
+        flag = crawler_main(url, para,500)
+        print('%s爬取成功' % keyword)
+        return "爬虫结束，爬取成功"
+    except Exception as e:
+        print("爬取失败,在%s处遇到错误" % keyword)
+        return "爬虫中断，在%s处遇到错误" % keyword
 #
 # def start():
 #     info = "success"
