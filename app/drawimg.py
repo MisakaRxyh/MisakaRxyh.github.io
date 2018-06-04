@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from time import strftime
+import time
 
 
 # 画图
@@ -37,4 +38,32 @@ class Drawimg:
         plt.savefig(filepath)
         # plt.show()
         return filepath
+
+    def drawLine(result):
+        #time.mktime(result[0][7].timetuple())
+        data = dict()
+        for i in result:
+            temp = time.mktime(i.createTime.timetuple())
+            if data.keys().__contains__(temp):
+                data[temp] += 1
+            else:
+                data[temp] = 1
+
+        x = list(data.keys())
+        y = list(data.values())
+        z1 = np.polyfit(x, y, 3)
+        yy = np.polyval(z1,x)
+        xx = []
+        for i in x:
+            i = time.localtime(int(i))
+            i = time.strftime("%m-%d",i)
+            xx.append(i)
+        plt.plot(xx,y,'b^',label='f(x)')
+        plt.plot(xx,yy,'r.',label='regression')
+        plt.legend(loc=0)
+        plt.grid(True)
+        plt.xlabel('x')
+        plt.ylabel('f(x)')
+        print('draw')
+        plt.show()
 

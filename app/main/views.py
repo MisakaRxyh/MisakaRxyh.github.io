@@ -10,6 +10,10 @@ import datetime
 from spider.crawler import crawler_main,kd_list,start,start_keyword
 from app.analysis import get_last_month
 from app.parse import Parse
+from app.drawimg import Drawimg
+import matplotlib.pyplot as plt
+import numpy as np
+import time
 # 主要路由映射
 
 # 所谓路由映射 就是flask框架提供的url路由—>视图函数的映射
@@ -481,6 +485,37 @@ def delete_collect():
     db.session.delete(collection)  # 删除
     db.session.commit()
     return "删除成功"
+
+@main.route('/drawline',methods = ['GET','POST'])
+def drawline():
+    skillname = 'java'
+    result = Position.query.filter(Position.skillName == skillname).all()
+    data = dict()
+    for i in result:
+        temp = time.mktime(i.createTime.timetuple())
+        if data.keys().__contains__(temp):
+            data[temp] += 1
+        else:
+            data[temp] = 1
+
+    x = list(data.keys())
+    y = list(data.values())
+    z1 = np.polyfit(x, y, 3)
+    yy = np.polyval(z1,x)
+    xx = []
+    for i in x:
+        i = time.localtime(int(i))
+        i = time.strftime("%m-%d",i)
+        xx.append(i)
+    plt.plot(xx,y,'b^',label='f(x)')
+    plt.plot(xx,yy,'r.',label='regression')
+    plt.legend(loc=0)
+    plt.grid(True)
+    plt.xlabel('x')
+    plt.ylabel('f(x)')
+    print('draw')
+    plt.show()
+    return '111'
 
 
 @main.before_request  # 钩子函数 在路由函数之前执行
